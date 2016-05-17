@@ -23464,8 +23464,8 @@ var _reactDom = require('react-dom');
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
-// This code is the same as the completed video (#19):
-// https://egghead.io/lessons/javascript-redux-react-todo-list-example-filtering-todos
+// This code is the same as the completed video (lesson 20):
+// https://egghead.io/lessons/javascript-redux-extracting-presentational-components-todo-todolist
 
 var todo = function todo(state, action) {
   // here the 'state' refers to an indidivual todo, not the list
@@ -23558,6 +23558,42 @@ var FilterLink = function FilterLink(_ref) {
   );
 };
 
+// presentational component. Does not specify behaviour - only renders a todo
+var Todo = function Todo(_ref2) {
+  var onClick = _ref2.onClick;
+  var completed = _ref2.completed;
+  var text = _ref2.text;
+  return _react2['default'].createElement(
+    'li',
+    {
+      onClick: onClick,
+      style: {
+        textDecoration: completed ? 'line-through' : 'none'
+      }
+    },
+    text,
+    '  '
+  );
+};
+
+var TodoList = function TodoList(_ref3) {
+  var // presentational component
+  todos = _ref3.todos;
+  var onTodoClick = _ref3.onTodoClick;
+  return _react2['default'].createElement(
+    'ul',
+    null,
+    todos.map(function (todo) {
+      return _react2['default'].createElement(Todo, _extends({ key: todo.id
+      }, todo, {
+        onClick: function () {
+          return onTodoClick(todo.id);
+        }
+      }));
+    })
+  );
+};
+
 var getVisibleTodos = function getVisibleTodos(todos, filter) {
   switch (filter) {
     case 'SHOW_ALL':
@@ -23614,27 +23650,14 @@ var TodoApp = (function (_Component) {
             } },
           'Add Todo'
         ),
-        _react2['default'].createElement(
-          'ul',
-          null,
-          visibleTodos.map(function (todo) {
-            return _react2['default'].createElement(
-              'li',
-              { key: todo.id,
-                onClick: function () {
-                  store.dispatch({
-                    type: 'TOGGLE_TODO',
-                    id: todo.id
-                  }); // when an action is dispatched the store calls the root reducer, which calls the todos reducer
-                },
-                style: {
-                  textDecoration: todo.completed ? 'line-through' : 'none'
-                }
-              },
-              todo.text
-            );
-          })
-        ),
+        _react2['default'].createElement(TodoList, {
+          todos: visibleTodos,
+          onTodoClick: function (id) {
+            return store.dispatch({
+              type: 'TOGGLE_TODO',
+              id: id
+            });
+          } }),
         _react2['default'].createElement(
           'p',
           null,
@@ -23680,82 +23703,6 @@ var render = function render() {
 
 store.subscribe(render); // any time the store's state changes, render is called
 render();
-
-// const testAddTodo = () => {
-//   const stateBefore = [];
-//   const action = {
-//     type: 'ADD_TODO',
-//     id: 0,
-//     text: 'Learn Redux'
-//   };
-//   const stateAfter = [
-//     {
-//       id: 0,
-//       text: 'Learn Redux',
-//       completed: false
-//     }
-//   ];
-
-//   deepFreeze(stateBefore);
-//   deepFreeze(action);
-
-//   expect(
-//     todos(stateBefore, action)
-//   ).toEqual(stateAfter);
-// };
-
-// const testToggleTodo = () => {
-//   const stateBefore = [
-//     {
-//       id: 0,
-//       text: 'Learn Redux',
-//       completed: false
-//     },
-//     {
-//       id: 1,
-//       text: 'Go shopping',
-//       completed: false
-//     }
-//   ];
-//   const action = {
-//     type: 'TOGGLE_TODO',
-//     id: 1
-//   };
-//   const stateAfter = [
-//     {
-//       id: 0,
-//       text: 'Learn Redux',
-//       completed: false
-//     },
-//     {
-//       id: 1,
-//       text: 'Go shopping',
-//       completed: true
-//     }
-//   ];
-
-//   deepFreeze(stateBefore);
-//   deepFreeze(action);
-
-//   expect(
-//     todos(stateBefore, action)
-//   ).toEqual(stateAfter);
-// }
-
-// testAddTodo();
-// testToggleTodo();
-// console.log('All tests have passed');
-
-// console.log('Current state:');
-// console.log(store.getState());
-
-// console.log('Dispatching SET_VISIBILITY_FILTER');
-// store.dispatch({
-//   type: 'SET_VISIBILITY_FILTER',
-//   filter: 'SHOW_COMPLETED'
-// });
-
-// console.log('Current state:');
-// console.log(store.getState());
+/* see props above */ /*  This top-level component acts as a container component (rather than Todo, which is presentational) */
 
 },{"deep-freeze":3,"expect":10,"react":198,"react-dom":60}]},{},[200]);
