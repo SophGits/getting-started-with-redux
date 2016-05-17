@@ -23464,8 +23464,8 @@ var _reactDom = require('react-dom');
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
-// This code is the same as the completed video (#18):
-// https://egghead.io/lessons/javascript-redux-react-todo-list-example-toggling-a-todo
+// This code is the same as the completed video (#19):
+// https://egghead.io/lessons/javascript-redux-react-todo-list-example-filtering-todos
 
 var todo = function todo(state, action) {
   // here the 'state' refers to an indidivual todo, not the list
@@ -23530,6 +23530,49 @@ var store = createStore(todoApp);
 
 var Component = _react2['default'].Component;
 
+var FilterLink = function FilterLink(_ref) {
+  var filter = _ref.filter;
+  var currentFilter = _ref.currentFilter;
+  var children = _ref.children;
+
+  if (filter === currentFilter) {
+    return _react2['default'].createElement(
+      'span',
+      null,
+      children
+    );
+  }
+
+  return _react2['default'].createElement(
+    'a',
+    { href: '#',
+      onClick: function (e) {
+        e.preventDefault();
+        store.dispatch({
+          type: 'SET_VISIBILITY_FILTER',
+          filter: filter
+        });
+      }
+    },
+    children
+  );
+};
+
+var getVisibleTodos = function getVisibleTodos(todos, filter) {
+  switch (filter) {
+    case 'SHOW_ALL':
+      return todos;
+    case 'SHOW_COMPLETED':
+      return todos.filter(function (t) {
+        return t.completed;
+      });
+    case 'SHOW_ACTIVE':
+      return todos.filter(function (t) {
+        return !t.completed;
+      });
+  }
+};
+
 var nextTodoId = 0;
 
 var TodoApp = (function (_Component) {
@@ -23546,6 +23589,13 @@ var TodoApp = (function (_Component) {
     value: function render() {
       var _this = this;
 
+      var _props = // just so you don't have to write this.props all the time
+      this.props;
+      var todos = _props.todos;
+      var visibilityFilter = _props.visibilityFilter;
+
+      var visibleTodos = getVisibleTodos(todos, visibilityFilter // this.props.visibilityFilter
+      );
       return _react2['default'].createElement(
         'div',
         null,
@@ -23567,7 +23617,7 @@ var TodoApp = (function (_Component) {
         _react2['default'].createElement(
           'ul',
           null,
-          this.props.todos.map(function (todo) {
+          visibleTodos.map(function (todo) {
             return _react2['default'].createElement(
               'li',
               { key: todo.id,
@@ -23584,6 +23634,38 @@ var TodoApp = (function (_Component) {
               todo.text
             );
           })
+        ),
+        _react2['default'].createElement(
+          'p',
+          null,
+          'Show:',
+          ' ',
+          _react2['default'].createElement(
+            FilterLink,
+            {
+              filter: 'SHOW_ALL',
+              currentFilter: visibilityFilter
+            },
+            'All'
+          ),
+          ' ',
+          _react2['default'].createElement(
+            FilterLink,
+            {
+              filter: 'SHOW_ACTIVE',
+              currentFilter: visibilityFilter
+            },
+            'Active'
+          ),
+          ' ',
+          _react2['default'].createElement(
+            FilterLink,
+            {
+              filter: 'SHOW_COMPLETED',
+              currentFilter: visibilityFilter
+            },
+            'Completed'
+          )
         )
       );
     }
@@ -23593,7 +23675,7 @@ var TodoApp = (function (_Component) {
 })(Component);
 
 var render = function render() {
-  _reactDom2['default'].render(_react2['default'].createElement(TodoApp, { todos: store.getState().todos }), document.getElementById('root'));
+  _reactDom2['default'].render(_react2['default'].createElement(TodoApp, store.getState()), document.getElementById('root'));
 };
 
 store.subscribe(render); // any time the store's state changes, render is called
