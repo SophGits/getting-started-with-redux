@@ -2,11 +2,11 @@ import deepFreeze from 'deep-freeze';
 import expect from 'expect';
 
 // This code is the same as the completed video:
-// https://egghead.io/lessons/javascript-redux-writing-a-todo-list-reducer-adding-a-todo
+// https://egghead.io/lessons/javascript-redux-writing-a-todo-list-reducer-toggling-a-todo
 
 const todos = (state = [], action) => {
   switch (action.type) {
-    case 'ADD_TODO':
+    case 'ADD_TODO' :
       return [
         ...state,
         {
@@ -15,6 +15,16 @@ const todos = (state = [], action) => {
           completed: false
         }
       ];
+    case 'TOGGLE_TODO' :
+      return state.map(todo => {
+        if(todo.id !== action.id) {
+          return todo;
+        }
+        return {
+          ...todo,
+          completed: !todo.completed
+        };
+      });
     default:
       return state;
   }
@@ -43,5 +53,44 @@ const testAddTodo = () => {
   ).toEqual(stateAfter);
 };
 
+const testToggleTodo = () => {
+  const stateBefore = [
+    {
+      id: 0,
+      text: 'Learn Redux',
+      completed: false
+    },
+    {
+      id: 1,
+      text: 'Go shopping',
+      completed: false
+    }
+  ];
+  const action = {
+    type: 'TOGGLE_TODO',
+    id: 1
+  };
+  const stateAfter = [
+    {
+      id: 0,
+      text: 'Learn Redux',
+      completed: false
+    },
+    {
+      id: 1,
+      text: 'Go shopping',
+      completed: true
+    }
+  ];
+
+  deepFreeze(stateBefore);
+  deepFreeze(action);
+
+  expect(
+    todos(stateBefore, action)
+  ).toEqual(stateAfter);
+}
+
 testAddTodo();
+testToggleTodo();
 console.log('All tests have passed');
