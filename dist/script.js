@@ -4053,8 +4053,8 @@ var _expect = require('expect');
 
 var _expect2 = _interopRequireDefault(_expect);
 
-// This code is the same as the completed video (number 13 inplaylist):
-// https://egghead.io/lessons/javascript-redux-reducer-composition-with-arrays
+// This code is the same as the completed video (#14 in playlist):
+// https://egghead.io/lessons/javascript-redux-reducer-composition-with-objects
 
 var todo = function todo(state, action) {
   // here the 'state' refers to an indidivual todo, not the list
@@ -4091,6 +4091,31 @@ var todos = function todos(state, action) {
       return state;
   }
 };
+
+var visibilityFilter = function visibilityFilter(state, action) {
+  if (state === undefined) state = 'SHOW_ALL';
+
+  switch (action.type) {
+    case 'SET_VISIBILITY_FILTER':
+      return action.filter;
+    default:
+      return state;
+  }
+};
+
+var todoApp = function todoApp(state, action) {
+  if (state === undefined) state = {};
+
+  return {
+    todos: todos(state.todos, action),
+    visibilityFilter: visibilityFilter(state.visibilityFilter, action)
+  };
+};
+
+var _Redux = Redux;
+var createStore = _Redux.createStore;
+
+var store = createStore(todoApp);
 
 var testAddTodo = function testAddTodo() {
   var stateBefore = [];
@@ -4144,5 +4169,17 @@ var testToggleTodo = function testToggleTodo() {
 testAddTodo();
 testToggleTodo();
 console.log('All tests have passed');
+
+console.log('Current state:');
+console.log(store.getState());
+
+console.log('Dispatching SET_VISIBILITY_FILTER');
+store.dispatch({
+  type: 'SET_VISIBILITY_FILTER',
+  filter: 'SHOW_COMPLETED'
+});
+
+console.log('Current state:');
+console.log(store.getState());
 
 },{"deep-freeze":3,"expect":10}]},{},[34]);

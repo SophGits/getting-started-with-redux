@@ -1,8 +1,8 @@
 import deepFreeze from 'deep-freeze';
 import expect from 'expect';
 
-// This code is the same as the completed video (number 13 inplaylist):
-// https://egghead.io/lessons/javascript-redux-reducer-composition-with-arrays
+// This code is the same as the completed video (#14 in playlist):
+// https://egghead.io/lessons/javascript-redux-reducer-composition-with-objects
 
 const todo = (state, action) => { // here the 'state' refers to an indidivual todo, not the list
   switch (action.type) {
@@ -38,6 +38,34 @@ const todos = (state = [], action) => {
       return state;
   }
 };
+
+const visibilityFilter = (
+  state = 'SHOW_ALL',
+  action
+) => {
+  switch (action.type) {
+    case 'SET_VISIBILITY_FILTER' :
+      return action.filter;
+    default :
+      return state;
+  }
+}
+
+const todoApp = (state = {}, action) => {
+  return {
+    todos: todos(
+      state.todos,
+      action
+    ),
+    visibilityFilter: visibilityFilter(
+      state.visibilityFilter,
+      action
+    )
+  };
+};
+
+const { createStore } = Redux;
+const store = createStore(todoApp);
 
 const testAddTodo = () => {
   const stateBefore = [];
@@ -103,3 +131,15 @@ const testToggleTodo = () => {
 testAddTodo();
 testToggleTodo();
 console.log('All tests have passed');
+
+console.log('Current state:');
+console.log(store.getState());
+
+console.log('Dispatching SET_VISIBILITY_FILTER');
+store.dispatch({
+  type: 'SET_VISIBILITY_FILTER',
+  filter: 'SHOW_COMPLETED'
+});
+
+console.log('Current state:');
+console.log(store.getState());
