@@ -4053,27 +4053,39 @@ var _expect = require('expect');
 
 var _expect2 = _interopRequireDefault(_expect);
 
-// This code is the same as the completed video:
-// https://egghead.io/lessons/javascript-redux-writing-a-todo-list-reducer-toggling-a-todo
+// This code is the same as the completed video (number 13 inplaylist):
+// https://egghead.io/lessons/javascript-redux-reducer-composition-with-arrays
+
+var todo = function todo(state, action) {
+  // here the 'state' refers to an indidivual todo, not the list
+  switch (action.type) {
+    case 'ADD_TODO':
+      return {
+        id: action.id,
+        text: action.text,
+        completed: false
+      };
+    case 'TOGGLE_TODO':
+      if (state.id !== action.id) {
+        return state;
+      }
+      return _extends({}, state, {
+        completed: !state.completed
+      });
+    default:
+      return state;
+  }
+};
 
 var todos = function todos(state, action) {
   if (state === undefined) state = [];
 
   switch (action.type) {
     case 'ADD_TODO':
-      return [].concat(_toConsumableArray(state), [{
-        id: action.id,
-        text: action.text,
-        completed: false
-      }]);
+      return [].concat(_toConsumableArray(state), [todo(undefined, action)]);
     case 'TOGGLE_TODO':
-      return state.map(function (todo) {
-        if (todo.id !== action.id) {
-          return todo;
-        }
-        return _extends({}, todo, {
-          completed: !todo.completed
-        });
+      return state.map(function (t) {
+        return todo(t, action);
       });
     default:
       return state;
