@@ -4041,6 +4041,8 @@ function match_ (obj, pattern, ca, cb) {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
+
 var _deepFreeze = require('deep-freeze');
 
 var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
@@ -4049,20 +4051,22 @@ var _expect = require('expect');
 
 var _expect2 = _interopRequireDefault(_expect);
 
-// const { combineReducers } = Redux;
-// react
-// react-dom
-
-// const todoApp= combineReducers({
-//   todos,
-//   visibilityFilters
-// })
-
-var _Redux = Redux;
-var createStore = _Redux.createStore;
+// This code is the same as the completed video:
+// https://egghead.io/lessons/javascript-redux-writing-a-todo-list-reducer-adding-a-todo
 
 var todos = function todos(state, action) {
   if (state === undefined) state = [];
+
+  switch (action.type) {
+    case 'ADD_TODO':
+      return [].concat(_toConsumableArray(state), [{
+        id: action.id,
+        text: action.text,
+        completed: false
+      }]);
+    default:
+      return state;
+  }
 };
 
 var testAddTodo = function testAddTodo() {
@@ -4083,6 +4087,7 @@ var testAddTodo = function testAddTodo() {
 
   (0, _expect2['default'])(todos(stateBefore, action)).toEqual(stateAfter);
 };
+
 testAddTodo();
 console.log('All tests have passed');
 

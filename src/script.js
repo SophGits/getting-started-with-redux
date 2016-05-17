@@ -1,8 +1,23 @@
 import deepFreeze from 'deep-freeze';
 import expect from 'expect';
 
-const todos = (state = [], action) => {
+// This code is the same as the completed video:
+// https://egghead.io/lessons/javascript-redux-writing-a-todo-list-reducer-adding-a-todo
 
+const todos = (state = [], action) => {
+  switch (action.type) {
+    case 'ADD_TODO':
+      return [
+        ...state,
+        {
+          id: action.id,
+          text: action.text,
+          completed: false
+        }
+      ];
+    default:
+      return state;
+  }
 };
 
 const testAddTodo = () => {
@@ -27,5 +42,6 @@ const testAddTodo = () => {
     todos(stateBefore, action)
   ).toEqual(stateAfter);
 };
+
 testAddTodo();
 console.log('All tests have passed');
