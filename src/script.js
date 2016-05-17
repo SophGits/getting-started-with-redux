@@ -1,8 +1,8 @@
 import deepFreeze from 'deep-freeze';
 import expect from 'expect';
 
-// This code is the same as the completed video (#14 in playlist):
-// https://egghead.io/lessons/javascript-redux-reducer-composition-with-objects
+// This code is the same as the completed video (#15):
+// https://egghead.io/lessons/javascript-redux-reducer-composition-with-combinereducers
 
 const todo = (state, action) => { // here the 'state' refers to an indidivual todo, not the list
   switch (action.type) {
@@ -51,18 +51,25 @@ const visibilityFilter = (
   }
 }
 
-const todoApp = (state = {}, action) => {
-  return {
-    todos: todos(
-      state.todos,
-      action
-    ),
-    visibilityFilter: visibilityFilter(
-      state.visibilityFilter,
-      action
-    )
-  };
-};
+const { combineReducers } = Redux;
+const todoApp = combineReducers({
+  todos,
+  visibilityFilter
+  // Since 'todos: todos' (field name : reducer name) You can use the ES6  object literal short-hand notation and just omit the keys
+});
+
+// const todoApp = (state = {}, action) => {
+//   return {
+//     todos: todos(
+//       state.todos,
+//       action
+//     ),
+//     visibilityFilter: visibilityFilter(
+//       state.visibilityFilter,
+//       action
+//     )
+//   };
+// };
 
 const { createStore } = Redux;
 const store = createStore(todoApp);

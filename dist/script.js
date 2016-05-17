@@ -4053,8 +4053,8 @@ var _expect = require('expect');
 
 var _expect2 = _interopRequireDefault(_expect);
 
-// This code is the same as the completed video (#14 in playlist):
-// https://egghead.io/lessons/javascript-redux-reducer-composition-with-objects
+// This code is the same as the completed video (#15):
+// https://egghead.io/lessons/javascript-redux-reducer-composition-with-combinereducers
 
 var todo = function todo(state, action) {
   // here the 'state' refers to an indidivual todo, not the list
@@ -4103,17 +4103,30 @@ var visibilityFilter = function visibilityFilter(state, action) {
   }
 };
 
-var todoApp = function todoApp(state, action) {
-  if (state === undefined) state = {};
-
-  return {
-    todos: todos(state.todos, action),
-    visibilityFilter: visibilityFilter(state.visibilityFilter, action)
-  };
-};
-
 var _Redux = Redux;
-var createStore = _Redux.createStore;
+var combineReducers = _Redux.combineReducers;
+
+var todoApp = combineReducers({
+  todos: todos,
+  visibilityFilter: visibilityFilter
+  // Since 'todos: todos' (field name : reducer name) You can use the ES6  object literal short-hand notation and just omit the keys
+});
+
+// const todoApp = (state = {}, action) => {
+//   return {
+//     todos: todos(
+//       state.todos,
+//       action
+//     ),
+//     visibilityFilter: visibilityFilter(
+//       state.visibilityFilter,
+//       action
+//     )
+//   };
+// };
+
+var _Redux2 = Redux;
+var createStore = _Redux2.createStore;
 
 var store = createStore(todoApp);
 
