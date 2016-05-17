@@ -1,8 +1,10 @@
 import deepFreeze from 'deep-freeze';
 import expect from 'expect';
+import React from 'react';
+import ReactDOM from 'react-dom';
 
-// This code is the same as the completed video (#15):
-// https://egghead.io/lessons/javascript-redux-reducer-composition-with-combinereducers
+// This code is the same as the completed video (#17):
+// https://egghead.io/lessons/javascript-redux-react-todo-list-example-adding-a-todo
 
 const todo = (state, action) => { // here the 'state' refers to an indidivual todo, not the list
   switch (action.type) {
@@ -52,101 +54,131 @@ const visibilityFilter = (
 }
 
 const { combineReducers } = Redux;
-const todoApp = combineReducers({
+const todoApp = combineReducers({ // this is the root reducer
   todos,
   visibilityFilter
   // Since 'todos: todos' (field name : reducer name) You can use the ES6  object literal short-hand notation and just omit the keys
 });
 
-// const todoApp = (state = {}, action) => {
-//   return {
-//     todos: todos(
-//       state.todos,
-//       action
-//     ),
-//     visibilityFilter: visibilityFilter(
-//       state.visibilityFilter,
-//       action
-//     )
-//   };
-// };
-
 const { createStore } = Redux;
 const store = createStore(todoApp);
 
-const testAddTodo = () => {
-  const stateBefore = [];
-  const action = {
-    type: 'ADD_TODO',
-    id: 0,
-    text: 'Learn Redux'
+const { Component } = React;
+
+let nextTodoId = 0;
+
+class TodoApp extends Component {
+  render() {
+    return (
+      <div>
+      <input ref={node => {
+        this.input = node;
+      }} />
+        <button onClick={() => {
+            store.dispatch({
+              type: 'ADD_TODO',
+              text: this.input.value,
+              id: nextTodoId++
+            });
+            this.input.value = '';
+          }}>
+          Add Todo
+        </button>
+        <ul>
+        {this.props.todos.map(todo =>
+          <li key={todo.id}>
+            {todo.text}
+          </li>
+        )}
+        </ul>
+      </div>
+    )
   };
-  const stateAfter = [
-    {
-      id: 0,
-      text: 'Learn Redux',
-      completed: false
-    }
-  ];
-
-  deepFreeze(stateBefore);
-  deepFreeze(action);
-
-  expect(
-    todos(stateBefore, action)
-  ).toEqual(stateAfter);
-};
-
-const testToggleTodo = () => {
-  const stateBefore = [
-    {
-      id: 0,
-      text: 'Learn Redux',
-      completed: false
-    },
-    {
-      id: 1,
-      text: 'Go shopping',
-      completed: false
-    }
-  ];
-  const action = {
-    type: 'TOGGLE_TODO',
-    id: 1
-  };
-  const stateAfter = [
-    {
-      id: 0,
-      text: 'Learn Redux',
-      completed: false
-    },
-    {
-      id: 1,
-      text: 'Go shopping',
-      completed: true
-    }
-  ];
-
-  deepFreeze(stateBefore);
-  deepFreeze(action);
-
-  expect(
-    todos(stateBefore, action)
-  ).toEqual(stateAfter);
 }
 
-testAddTodo();
-testToggleTodo();
-console.log('All tests have passed');
+const render = () => {
+  ReactDOM.render(
+    <TodoApp todos={store.getState().todos} />,
+    document.getElementById('root')
+  )
+};
 
-console.log('Current state:');
-console.log(store.getState());
+store.subscribe(render); // any time the store's state changes, render is called
+render();
 
-console.log('Dispatching SET_VISIBILITY_FILTER');
-store.dispatch({
-  type: 'SET_VISIBILITY_FILTER',
-  filter: 'SHOW_COMPLETED'
-});
+// const testAddTodo = () => {
+//   const stateBefore = [];
+//   const action = {
+//     type: 'ADD_TODO',
+//     id: 0,
+//     text: 'Learn Redux'
+//   };
+//   const stateAfter = [
+//     {
+//       id: 0,
+//       text: 'Learn Redux',
+//       completed: false
+//     }
+//   ];
 
-console.log('Current state:');
-console.log(store.getState());
+//   deepFreeze(stateBefore);
+//   deepFreeze(action);
+
+//   expect(
+//     todos(stateBefore, action)
+//   ).toEqual(stateAfter);
+// };
+
+// const testToggleTodo = () => {
+//   const stateBefore = [
+//     {
+//       id: 0,
+//       text: 'Learn Redux',
+//       completed: false
+//     },
+//     {
+//       id: 1,
+//       text: 'Go shopping',
+//       completed: false
+//     }
+//   ];
+//   const action = {
+//     type: 'TOGGLE_TODO',
+//     id: 1
+//   };
+//   const stateAfter = [
+//     {
+//       id: 0,
+//       text: 'Learn Redux',
+//       completed: false
+//     },
+//     {
+//       id: 1,
+//       text: 'Go shopping',
+//       completed: true
+//     }
+//   ];
+
+//   deepFreeze(stateBefore);
+//   deepFreeze(action);
+
+//   expect(
+//     todos(stateBefore, action)
+//   ).toEqual(stateAfter);
+// }
+
+// testAddTodo();
+// testToggleTodo();
+// console.log('All tests have passed');
+
+// console.log('Current state:');
+// console.log(store.getState());
+
+// console.log('Dispatching SET_VISIBILITY_FILTER');
+// store.dispatch({
+//   type: 'SET_VISIBILITY_FILTER',
+//   filter: 'SHOW_COMPLETED'
+// });
+
+// console.log('Current state:');
+// console.log(store.getState());
