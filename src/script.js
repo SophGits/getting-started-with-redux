@@ -3,8 +3,8 @@ import expect from 'expect';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-// This code is the same as the completed video (#17):
-// https://egghead.io/lessons/javascript-redux-react-todo-list-example-adding-a-todo
+// This code is the same as the completed video (#18):
+// https://egghead.io/lessons/javascript-redux-react-todo-list-example-toggling-a-todo
 
 const todo = (state, action) => { // here the 'state' refers to an indidivual todo, not the list
   switch (action.type) {
@@ -86,7 +86,20 @@ class TodoApp extends Component {
         </button>
         <ul>
         {this.props.todos.map(todo =>
-          <li key={todo.id}>
+          <li key={todo.id}
+            onClick={() => {
+              store.dispatch({
+                type: 'TOGGLE_TODO',
+                id: todo.id
+              }); // when an action is dispatched the store calls the root reducer, which calls the todos reducer
+            }}
+            style={{
+              textDecoration:
+                todo.completed ?
+                  'line-through' :
+                  'none'
+            }}
+          >
             {todo.text}
           </li>
         )}

@@ -23464,8 +23464,8 @@ var _reactDom = require('react-dom');
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
-// This code is the same as the completed video (#17):
-// https://egghead.io/lessons/javascript-redux-react-todo-list-example-adding-a-todo
+// This code is the same as the completed video (#18):
+// https://egghead.io/lessons/javascript-redux-react-todo-list-example-toggling-a-todo
 
 var todo = function todo(state, action) {
   // here the 'state' refers to an indidivual todo, not the list
@@ -23570,7 +23570,17 @@ var TodoApp = (function (_Component) {
           this.props.todos.map(function (todo) {
             return _react2['default'].createElement(
               'li',
-              { key: todo.id },
+              { key: todo.id,
+                onClick: function () {
+                  store.dispatch({
+                    type: 'TOGGLE_TODO',
+                    id: todo.id
+                  }); // when an action is dispatched the store calls the root reducer, which calls the todos reducer
+                },
+                style: {
+                  textDecoration: todo.completed ? 'line-through' : 'none'
+                }
+              },
               todo.text
             );
           })
