@@ -23464,8 +23464,22 @@ var _reactDom = require('react-dom');
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
-// This code is the same as the completed video (24):
-// https://egghead.io/lessons/javascript-redux-passing-the-store-down-explicitly-via-props
+// This code is the same as the completed video (25):
+// https://egghead.io/lessons/javascript-redux-passing-the-store-down-implicitly-via-context
+
+// Render todo app inside provider component
+
+// provider component renders whatever you pass to it - so in this case its children or the TodoApp component
+
+// it also provides the context to any components inside it (inclusing grandchildren). The context has only one key - the store . It corresponds to the store we pass as a prop to the provider component.
+
+// We pass the store to the provider component in the render call. We make it available to child components by defining the getChildContext with the store key pointing to that prop.
+
+// It is essential the getChildContext is matched by childContextTypes, where we specify the store key has type 'object'. It is required for passing context down the tree.
+
+// Now we declare contextTypes to container components that need access to the store.
+
+// In AddTodo you can read `(props, { store })` as `(props, context)`
 
 var todo = function todo(state, action) {
   // here the 'state' refers to an indidivual todo, not the list
@@ -23567,7 +23581,7 @@ var FilterLink = (function (_Component) {
     value: function componentDidMount() {
       var _this = this;
 
-      var store = this.props.store;
+      var store = this.context.store;
 
       this.unsubscribe = store.subscribe(function () {
         return _this.forceUpdate();
@@ -23583,7 +23597,7 @@ var FilterLink = (function (_Component) {
     key: 'render',
     value: function render() {
       var props = this.props;
-      var store = this.props.store;
+      var store = this.context.store;
 
       var state = store.getState();
       {/* not React's state, but the Redux store's state */}
@@ -23609,8 +23623,11 @@ var FilterLink = (function (_Component) {
   return FilterLink;
 })(Component);
 
-var Footer = function Footer(_ref2) {
-  var store = _ref2.store;
+FilterLink.contextTypes = {
+  store: _react2['default'].PropTypes.object
+};
+
+var Footer = function Footer() {
   return _react2['default'].createElement(
     'p',
     null,
@@ -23619,8 +23636,7 @@ var Footer = function Footer(_ref2) {
     _react2['default'].createElement(
       FilterLink,
       {
-        filter: 'SHOW_ALL',
-        store: store
+        filter: 'SHOW_ALL'
       },
       'All'
     ),
@@ -23628,8 +23644,7 @@ var Footer = function Footer(_ref2) {
     _react2['default'].createElement(
       FilterLink,
       {
-        filter: 'SHOW_ACTIVE',
-        store: store
+        filter: 'SHOW_ACTIVE'
       },
       'Active'
     ),
@@ -23637,8 +23652,7 @@ var Footer = function Footer(_ref2) {
     _react2['default'].createElement(
       FilterLink,
       {
-        filter: 'SHOW_COMPLETED',
-        store: store
+        filter: 'SHOW_COMPLETED'
       },
       'Completed'
     )
@@ -23646,10 +23660,10 @@ var Footer = function Footer(_ref2) {
 };
 
 // presentational component. Does not specify behaviour - only renders a todo
-var Todo = function Todo(_ref3) {
-  var onClick = _ref3.onClick;
-  var completed = _ref3.completed;
-  var text = _ref3.text;
+var Todo = function Todo(_ref2) {
+  var onClick = _ref2.onClick;
+  var completed = _ref2.completed;
+  var text = _ref2.text;
   return _react2['default'].createElement(
     'li',
     {
@@ -23663,10 +23677,10 @@ var Todo = function Todo(_ref3) {
   );
 };
 
-var TodoList = function TodoList(_ref4) {
+var TodoList = function TodoList(_ref3) {
   var // presentational component
-  todos = _ref4.todos;
-  var onTodoClick = _ref4.onTodoClick;
+  todos = _ref3.todos;
+  var onTodoClick = _ref3.onTodoClick;
   return _react2['default'].createElement(
     'ul',
     null,
@@ -23697,8 +23711,8 @@ var getVisibleTodos = function getVisibleTodos(todos, filter) {
 };
 
 var nextTodoId = 0;
-var AddTodo = function AddTodo(_ref5) {
-  var store = _ref5.store;
+var AddTodo = function AddTodo(props, _ref4) {
+  var store = _ref4.store;
 
   var input = undefined;
 
@@ -23722,6 +23736,9 @@ var AddTodo = function AddTodo(_ref5) {
     )
   );
 };
+AddTodo.contextTypes = {
+  store: _react2['default'].PropTypes.object
+};
 
 var VisibleTodoList = (function (_Component2) {
   _inherits(VisibleTodoList, _Component2);
@@ -23737,7 +23754,7 @@ var VisibleTodoList = (function (_Component2) {
     value: function componentDidMount() {
       var _this2 = this;
 
-      var store = this.props.store;
+      var store = this.context.store;
 
       this.unsubscribe = store.subscribe(function () {
         return _this2.forceUpdate();
@@ -23752,7 +23769,7 @@ var VisibleTodoList = (function (_Component2) {
     key: 'render',
     value: function render() {
       var props = this.props;
-      var store = props.store;
+      var store = this.context.store;
 
       var state = store.getState();
 
@@ -23770,21 +23787,60 @@ var VisibleTodoList = (function (_Component2) {
   return VisibleTodoList;
 })(Component);
 
-var TodoApp = function TodoApp(_ref6) {
-  var store = _ref6.store;
+VisibleTodoList.contextTypes = {
+  store: _react2['default'].PropTypes.object
+};
+
+var TodoApp = function TodoApp() {
   return _react2['default'].createElement(
     'div',
     null,
-    _react2['default'].createElement(AddTodo, { store: store }),
-    _react2['default'].createElement(VisibleTodoList, { store: store }),
-    _react2['default'].createElement(Footer, { store: store })
+    _react2['default'].createElement(AddTodo, null),
+    _react2['default'].createElement(VisibleTodoList, null),
+    _react2['default'].createElement(Footer, null)
   );
+};
+
+// uses React's advanced context feature to make the store (passed in) available to all child components
+
+var Provider = (function (_Component3) {
+  _inherits(Provider, _Component3);
+
+  function Provider() {
+    _classCallCheck(this, Provider);
+
+    _get(Object.getPrototypeOf(Provider.prototype), 'constructor', this).apply(this, arguments);
+  }
+
+  _createClass(Provider, [{
+    key: 'getChildContext',
+    value: function getChildContext() {
+      return {
+        store: this.props.store
+      };
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      return this.props.children;
+    }
+  }]);
+
+  return Provider;
+})(Component);
+
+Provider.childContextTypes = {
+  store: _react2['default'].PropTypes.object
 };
 
 var _Redux2 = Redux;
 var createStore = _Redux2.createStore;
 
-_reactDom2['default'].render(_react2['default'].createElement(TodoApp, { store: createStore(todoApp) }), document.getElementById('root'));
+_reactDom2['default'].render(_react2['default'].createElement(
+  Provider,
+  { store: createStore(todoApp) },
+  _react2['default'].createElement(TodoApp, null)
+), document.getElementById('root'));
 /* see props above */
 
 },{"deep-freeze":3,"expect":10,"react":198,"react-dom":60}]},{},[200]);

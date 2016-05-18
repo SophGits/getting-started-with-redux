@@ -3,8 +3,24 @@ import expect from 'expect';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-// This code is the same as the completed video (24):
-// https://egghead.io/lessons/javascript-redux-passing-the-store-down-explicitly-via-props
+// This code is the same as the completed video (25):
+// https://egghead.io/lessons/javascript-redux-passing-the-store-down-implicitly-via-context
+
+
+// Render todo app inside provider component
+
+// provider component renders whatever you pass to it - so in this case its children or the TodoApp component
+
+// it also provides the context to any components inside it (inclusing grandchildren). The context has only one key - the store . It corresponds to the store we pass as a prop to the provider component.
+
+// We pass the store to the provider component in the render call. We make it available to child components by defining the getChildContext with the store key pointing to that prop.
+
+// It is essential the getChildContext is matched by childContextTypes, where we specify the store key has type 'object'. It is required for passing context down the tree.
+
+// Now we declare contextTypes to container components that need access to the store.
+
+// In AddTodo you can read `(props, { store })` as `(props, context)`
+
 
 const todo = (state, action) => { // here the 'state' refers to an indidivual todo, not the list
   switch (action.type) {
@@ -87,7 +103,7 @@ const Link = ({
 // container component
 class FilterLink extends Component {
   componentDidMount() {
-    const { store } = this.props;
+    const { store } = this.context;
     this.unsubscribe = store.subscribe(() =>
       this.forceUpdate()
     );
@@ -100,7 +116,7 @@ class FilterLink extends Component {
 
   render() {
     const props = this.props;
-    const { store } = this.props;
+    const { store } = this.context;
     const state = store.getState();
     {/* not React's state, but the Redux store's state */}
 
@@ -123,14 +139,16 @@ class FilterLink extends Component {
     )
   }
 }
+FilterLink.contextTypes = {
+  store: React.PropTypes.object
+}
 
-const Footer = ({ store }) => (
+const Footer = () => (
   <p>
     Show:
     {' '}
     <FilterLink
       filter='SHOW_ALL'
-      store = { store }
     >
       All
     </FilterLink>
@@ -138,7 +156,6 @@ const Footer = ({ store }) => (
     {', '}
     <FilterLink
       filter='SHOW_ACTIVE'
-      store = { store }
     >
       Active
     </FilterLink>
@@ -146,7 +163,6 @@ const Footer = ({ store }) => (
     {', '}
     <FilterLink
       filter='SHOW_COMPLETED'
-      store = { store }
     >
       Completed
     </FilterLink>
@@ -205,7 +221,7 @@ const getVisibleTodos = (
 }
 
 let nextTodoId = 0;
-const AddTodo = ({ store }) => {
+const AddTodo = (props, { store }) => {
   let input;
 
   return (
@@ -225,11 +241,14 @@ const AddTodo = ({ store }) => {
       </button>
     </div>
   )
-}
+};
+AddTodo.contextTypes = {
+  store: React.PropTypes.object
+};
 
 class VisibleTodoList extends Component {
   componentDidMount() {
-    const { store } = this.props;
+    const { store } = this.context;
     this.unsubscribe = store.subscribe(() =>
       this.forceUpdate()
     );
@@ -241,7 +260,7 @@ class VisibleTodoList extends Component {
 
   render() {
     const props = this.props;
-    const { store } = props;
+    const { store } = this.context;
     const state = store.getState();
 
     return (
@@ -261,19 +280,40 @@ class VisibleTodoList extends Component {
     )
   }
 }
+VisibleTodoList.contextTypes = {
+  store: React.PropTypes.object
+}
 
-const TodoApp = ({ store }) =>
+const TodoApp = () =>
 (
   <div>
-    <AddTodo store={store} />
-    <VisibleTodoList store={store} />
-    <Footer store={store} />
+    <AddTodo />
+    <VisibleTodoList />
+    <Footer />
   </div>
 )
+
+// uses React's advanced context feature to make the store (passed in) available to all child components
+class Provider extends Component {
+  getChildContext() {
+    return {
+      store: this.props.store
+    };
+  }
+
+  render() {
+    return this.props.children;
+  }
+}
+Provider.childContextTypes = {
+  store: React.PropTypes.object
+}
 
 const { createStore } = Redux;
 
 ReactDOM.render(
-  <TodoApp store={createStore(todoApp)} />,
+  <Provider store={createStore(todoApp)} >
+    <TodoApp />
+  </Provider>,
   document.getElementById('root')
 );
