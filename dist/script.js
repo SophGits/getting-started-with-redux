@@ -24937,7 +24937,7 @@ var _reactDom2 = _interopRequireDefault(_reactDom);
 var _reactRedux = require('react-redux');
 
 // This code is the same as the completed video:
-// x.
+// x
 
 var todo = function todo(state, action) {
   // here the 'state' refers to an indidivual todo, not the list
@@ -25198,56 +25198,24 @@ AddTodo.contextTypes = {
   store: _react2['default'].PropTypes.object
 };
 
-var VisibleTodoList = (function (_Component2) {
-  _inherits(VisibleTodoList, _Component2);
+var mapStateToProps = function mapStateToProps(state) {
+  return {
+    todos: getVisibleTodos(state.todos, state.visibilityFilter)
+  };
+};
 
-  function VisibleTodoList() {
-    _classCallCheck(this, VisibleTodoList);
-
-    _get(Object.getPrototypeOf(VisibleTodoList.prototype), 'constructor', this).apply(this, arguments);
-  }
-
-  _createClass(VisibleTodoList, [{
-    key: 'componentDidMount',
-    value: function componentDidMount() {
-      var _this2 = this;
-
-      var store = this.context.store;
-
-      this.unsubscribe = store.subscribe(function () {
-        return _this2.forceUpdate();
+var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+  return {
+    onTodoClick: function onTodoClick(id) {
+      dispatch({
+        type: 'TOGGLE_TODO',
+        id: id
       });
     }
-  }, {
-    key: 'componentWillUnmount',
-    value: function componentWillUnmount() {
-      this.unsubscribe();
-    }
-  }, {
-    key: 'render',
-    value: function render() {
-      var props = this.props;
-      var store = this.context.store;
-
-      var state = store.getState();
-
-      return _react2['default'].createElement(TodoList, {
-        todos: getVisibleTodos(state.todos, state.visibilityFilter),
-        onTodoClick: function (id) {
-          return store.dispatch({
-            type: 'TOGGLE_TODO',
-            id: id
-          });
-        } });
-    }
-  }]);
-
-  return VisibleTodoList;
-})(Component);
-
-VisibleTodoList.contextTypes = {
-  store: _react2['default'].PropTypes.object
+  };
 };
+
+var VisibleTodoList = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(TodoList);
 
 var TodoApp = function TodoApp() {
   return _react2['default'].createElement(
