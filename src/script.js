@@ -106,6 +106,8 @@ class FilterLink extends Component {
     {/* not React's state, but the Redux store's state */}
 
     {/* Below: necessary to use the current state of the store in the render method, hence why we subscribe to the store, above. Now when the link is clicked (below) it changes the store, and everything subscribed to the store updates. */}
+
+    {/* NB the props.filter is what's passed down from Footer */}
     return (
       <Link active = {
         props.filter === state.visibilityFilter
