@@ -23464,8 +23464,8 @@ var _reactDom = require('react-dom');
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
-// This code is the same as the completed video (22):
-// https://egghead.io/lessons/javascript-redux-extracting-container-components-filterlink
+// This code is the same as the completed video (23):
+// https://egghead.io/lessons/javascript-redux-extracting-container-components-visibletodolist-addtodo
 
 var todo = function todo(state, action) {
   // here the 'state' refers to an indidivual todo, not the list
@@ -23621,7 +23621,7 @@ var Footer = function Footer() {
       },
       'All'
     ),
-    ' ',
+    ', ',
     _react2['default'].createElement(
       FilterLink,
       {
@@ -23629,7 +23629,7 @@ var Footer = function Footer() {
       },
       'Active'
     ),
-    ' ',
+    ', ',
     _react2['default'].createElement(
       FilterLink,
       {
@@ -23691,9 +23691,8 @@ var getVisibleTodos = function getVisibleTodos(todos, filter) {
   }
 };
 
-var AddTodo = function AddTodo(_ref4) {
-  var onAddClick = _ref4.onAddClick;
-
+var nextTodoId = 0;
+var AddTodo = function AddTodo() {
   var input = undefined;
 
   return _react2['default'].createElement(
@@ -23705,7 +23704,11 @@ var AddTodo = function AddTodo(_ref4) {
     _react2['default'].createElement(
       'button',
       { onClick: function () {
-          onAddClick(input.value);
+          store.dispatch({
+            type: 'ADD_TODO',
+            id: nextTodoId++,
+            text: input.value
+          });
           input.value = '';
         } },
       'Add Todo'
@@ -23713,40 +23716,60 @@ var AddTodo = function AddTodo(_ref4) {
   );
 };
 
-var nextTodoId = 0;
-var TodoApp = function TodoApp(_ref5) {
-  var todos = _ref5.todos;
-  var visibilityFilter = _ref5.visibilityFilter;
+var VisibleTodoList = (function (_Component2) {
+  _inherits(VisibleTodoList, _Component2);
+
+  function VisibleTodoList() {
+    _classCallCheck(this, VisibleTodoList);
+
+    _get(Object.getPrototypeOf(VisibleTodoList.prototype), 'constructor', this).apply(this, arguments);
+  }
+
+  _createClass(VisibleTodoList, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      var _this2 = this;
+
+      this.unsubscribe = store.subscribe(function () {
+        return _this2.forceUpdate();
+      });
+    }
+  }, {
+    key: 'componentWillUnmount',
+    value: function componentWillUnmount() {
+      this.unsubscribe();
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var props = this.props;
+      var state = store.getState();
+
+      return _react2['default'].createElement(TodoList, {
+        todos: getVisibleTodos(state.todos, state.visibilityFilter),
+        onTodoClick: function (id) {
+          return store.dispatch({
+            type: 'TOGGLE_TODO',
+            id: id
+          });
+        } });
+    }
+  }]);
+
+  return VisibleTodoList;
+})(Component);
+
+var TodoApp = function TodoApp() {
   return _react2['default'].createElement(
     'div',
     null,
-    _react2['default'].createElement(AddTodo, {
-      onAddClick: function (text) {
-        return store.dispatch({
-          type: 'ADD_TODO',
-          id: nextTodoId++,
-          text: text
-        });
-      }
-    }),
-    _react2['default'].createElement(TodoList, {
-      todos: getVisibleTodos(todos, visibilityFilter),
-      onTodoClick: function (id) {
-        return store.dispatch({
-          type: 'TOGGLE_TODO',
-          id: id
-        });
-      } }),
+    _react2['default'].createElement(AddTodo, null),
+    _react2['default'].createElement(VisibleTodoList, null),
     _react2['default'].createElement(Footer, null)
   );
 };
 
-var render = function render() {
-  _reactDom2['default'].render(_react2['default'].createElement(TodoApp, store.getState()), document.getElementById('root'));
-};
-
-store.subscribe(render); // any time the store's state changes, render is called
-render();
-/* see props above */ /*  This top-level component acts as a container component (rather than Todo, which is presentational) */
+_reactDom2['default'].render(_react2['default'].createElement(TodoApp, null), document.getElementById('root'));
+/* see props above */
 
 },{"deep-freeze":3,"expect":10,"react":198,"react-dom":60}]},{},[200]);

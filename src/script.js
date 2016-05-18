@@ -3,8 +3,8 @@ import expect from 'expect';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-// This code is the same as the completed video (22):
-// https://egghead.io/lessons/javascript-redux-extracting-container-components-filterlink
+// This code is the same as the completed video (23):
+// https://egghead.io/lessons/javascript-redux-extracting-container-components-visibletodolist-addtodo
 
 const todo = (state, action) => { // here the 'state' refers to an indidivual todo, not the list
   switch (action.type) {
@@ -133,14 +133,14 @@ const Footer = () => (
       All
     </FilterLink>
 
-    {' '}
+    {', '}
     <FilterLink
       filter='SHOW_ACTIVE'
     >
       Active
     </FilterLink>
 
-    {' '}
+    {', '}
     <FilterLink
       filter='SHOW_COMPLETED'
     >
@@ -200,9 +200,8 @@ const getVisibleTodos = (
   }
 }
 
-const AddTodo = ({
-  onAddClick
-}) => {
+let nextTodoId = 0;
+const AddTodo = () => {
   let input;
 
   return (
@@ -211,7 +210,11 @@ const AddTodo = ({
         input = node;
       }} />
       <button onClick={() => {
-          onAddClick(input.value);
+        store.dispatch({
+          type: 'ADD_TODO',
+          id: nextTodoId++,
+          text: input.value
+        })
           input.value = '';
         }}>
         Add Todo
@@ -220,46 +223,51 @@ const AddTodo = ({
   )
 }
 
-let nextTodoId = 0;
-const TodoApp = ({
-  todos,
-  visibilityFilter
-}) =>
+class VisibleTodoList extends Component {
+
+  componentDidMount() {
+    this.unsubscribe = store.subscribe(() =>
+      this.forceUpdate()
+    );
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
+
+  render() {
+    const props = this.props;
+    const state = store.getState();
+
+    return (
+      <TodoList
+        todos={
+          getVisibleTodos(
+            state.todos,
+            state.visibilityFilter
+          )
+        }
+        onTodoClick={id =>
+          store.dispatch({
+            type: 'TOGGLE_TODO',
+            id
+          })
+        } />
+    )
+  }
+}
+
+const TodoApp = () =>
 (
   <div>
-    <AddTodo
-      onAddClick={text =>
-        store.dispatch({
-          type: 'ADD_TODO',
-          id: nextTodoId++,
-          text
-        })
-      }
-    />
-    {/*  This top-level component acts as a container component (rather than Todo, which is presentational) */}
-    <TodoList
-      todos={
-        getVisibleTodos(
-          todos,
-          visibilityFilter
-        )
-      }
-      onTodoClick={id =>
-        store.dispatch({
-          type: 'TOGGLE_TODO',
-          id
-        })
-      } />
+    <AddTodo />
+    <VisibleTodoList />
     <Footer />
   </div>
 )
 
-const render = () => {
-  ReactDOM.render(
-    <TodoApp {...store.getState()} />,
-    document.getElementById('root')
-  )
-};
 
-store.subscribe(render); // any time the store's state changes, render is called
-render();
+ReactDOM.render(
+  <TodoApp />,
+  document.getElementById('root')
+);
