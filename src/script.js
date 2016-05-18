@@ -4,8 +4,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { connect } from 'react-redux';
-// This code is the same as the completed video (27):
-// https://egghead.io/lessons/javascript-redux-generating-containers-with-connect-from-react-redux-visibletodolist
+// This code is the same as the completed video (28):
+// https://egghead.io/lessons/javascript-redux-generating-containers-with-connect-from-react-redux-addtodo
 
 const todo = (state, action) => { // here the 'state' refers to an indidivual todo, not the list
   switch (action.type) {
@@ -206,7 +206,7 @@ const getVisibleTodos = (
 }
 
 let nextTodoId = 0;
-const AddTodo = (props, { store }) => {
+let AddTodo = ({ dispatch }) => {
   let input;
 
   return (
@@ -215,7 +215,7 @@ const AddTodo = (props, { store }) => {
         input = node;
       }} />
       <button onClick={() => {
-        store.dispatch({
+        dispatch({
           type: 'ADD_TODO',
           id: nextTodoId++,
           text: input.value
@@ -227,11 +227,14 @@ const AddTodo = (props, { store }) => {
     </div>
   )
 };
-AddTodo.contextTypes = {
-  store: React.PropTypes.object
-};
+AddTodo = connect(
+  null,
+  dispatch => {
+    return { dispatch };
+  }
+)(AddTodo);
 
-const mapStateToProps = (state) => {
+const mapStateToTodoListProps = (state) => {
   return {
     todos: getVisibleTodos(
       state.todos,
@@ -239,8 +242,7 @@ const mapStateToProps = (state) => {
     )
   };
 };
-
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToTodoListProps = (dispatch) => {
   return {
     onTodoClick: (id) => {
       dispatch({
@@ -250,10 +252,9 @@ const mapDispatchToProps = (dispatch) => {
     }
   };
 };
-
 const VisibleTodoList = connect(
-  mapStateToProps,
-  mapDispatchToProps
+  mapStateToTodoListProps,
+  mapDispatchToTodoListProps
 )(TodoList);
 
 const TodoApp = () =>
