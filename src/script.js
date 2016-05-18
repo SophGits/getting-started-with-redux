@@ -2,25 +2,10 @@ import deepFreeze from 'deep-freeze';
 import expect from 'expect';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
 
-// This code is the same as the completed video (25):
-// https://egghead.io/lessons/javascript-redux-passing-the-store-down-implicitly-via-context
-
-
-// Render todo app inside provider component
-
-// provider component renders whatever you pass to it - so in this case its children or the TodoApp component
-
-// it also provides the context to any components inside it (inclusing grandchildren). The context has only one key - the store . It corresponds to the store we pass as a prop to the provider component.
-
-// We pass the store to the provider component in the render call. We make it available to child components by defining the getChildContext with the store key pointing to that prop.
-
-// It is essential the getChildContext is matched by childContextTypes, where we specify the store key has type 'object'. It is required for passing context down the tree.
-
-// Now we declare contextTypes to container components that need access to the store.
-
-// In AddTodo you can read `(props, { store })` as `(props, context)`
-
+// This code is the same as the completed video (26):
+// https://egghead.io/lessons/javascript-redux-passing-the-store-down-with-provider-from-react-redux
 
 const todo = (state, action) => { // here the 'state' refers to an indidivual todo, not the list
   switch (action.type) {
@@ -292,22 +277,6 @@ const TodoApp = () =>
     <Footer />
   </div>
 )
-
-// uses React's advanced context feature to make the store (passed in) available to all child components
-class Provider extends Component {
-  getChildContext() {
-    return {
-      store: this.props.store
-    };
-  }
-
-  render() {
-    return this.props.children;
-  }
-}
-Provider.childContextTypes = {
-  store: React.PropTypes.object
-}
 
 const { createStore } = Redux;
 
