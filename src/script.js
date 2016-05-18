@@ -3,8 +3,8 @@ import expect from 'expect';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-// This code is the same as the completed video (lesson 21):
-// https://egghead.io/lessons/javascript-redux-extracting-presentational-components-addtodo-footer-filterlink
+// This code is the same as the completed video (22):
+// https://egghead.io/lessons/javascript-redux-extracting-container-components-filterlink
 
 const todo = (state, action) => { // here the 'state' refers to an indidivual todo, not the list
   switch (action.type) {
@@ -65,13 +65,13 @@ const store = createStore(todoApp);
 
 const { Component } = React;
 
-const FilterLink = ({
-  filter,
-  currentFilter,
+// presentational component
+const Link = ({
+  active,
   children,
   onClick
 }) => {
-  if(filter === currentFilter) {
+  if(active) {
     return <span>{children}</span>;
   }
 
@@ -79,7 +79,7 @@ const FilterLink = ({
     <a href='#'
       onClick={e => {
         e.preventDefault();
-        onClick(filter)
+        onClick()
       }}
     >
       {children}
@@ -87,17 +87,48 @@ const FilterLink = ({
   )
 }
 
-const Footer = ({
-  visibilityFilter,
-  onFilterClick
-}) => (
+// container component
+class FilterLink extends Component {
+  componentDidMount() {
+    this.unsubscribe = store.subscribe(() =>
+      this.forceUpdate()
+    );
+    {/* any time the store's state ∆s we update the component */}
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
+
+  render() {
+    const props = this.props;
+    const state = store.getState();
+    {/* not React's state, but the Redux store's state */}
+
+    {/* Below: necessary to use the current state of the store in the render method, hence why we subscribe to the store, above. Now when the link is clicked (below) it changes the store, and everything subscribed to the store updates. */}
+    return (
+      <Link active = {
+        props.filter === state.visibilityFilter
+      }
+      onClick= {() =>
+        store.dispatch({
+          type: 'SET_VISIBILITY_FILTER',
+          filter: props.filter
+        })
+      }
+      >
+        {props.children}
+      </Link>
+    )
+  }
+}
+
+const Footer = () => (
   <p>
     Show:
     {' '}
     <FilterLink
       filter='SHOW_ALL'
-      currentFilter = {visibilityFilter}
-      onClick ={onFilterClick}
     >
       All
     </FilterLink>
@@ -105,8 +136,6 @@ const Footer = ({
     {' '}
     <FilterLink
       filter='SHOW_ACTIVE'
-      currentFilter = {visibilityFilter}
-      onClick ={onFilterClick}
     >
       Active
     </FilterLink>
@@ -114,8 +143,6 @@ const Footer = ({
     {' '}
     <FilterLink
       filter='SHOW_COMPLETED'
-      currentFilter = {visibilityFilter}
-      onClick ={onFilterClick}
     >
       Completed
     </FilterLink>
@@ -223,14 +250,7 @@ const TodoApp = ({
           id
         })
       } />
-    <Footer
-      visibilityFilter={visibilityFilter}
-      onFilterClick={ filter =>
-        store.dispatch({
-          type: 'SET_VISIBILITY_FILTER',
-          filter
-        })
-      } />
+    <Footer />
   </div>
 )
 
