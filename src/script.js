@@ -3,8 +3,8 @@ import expect from 'expect';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-// This code is the same as the completed video (23):
-// https://egghead.io/lessons/javascript-redux-extracting-container-components-visibletodolist-addtodo
+// This code is the same as the completed video (24):
+// https://egghead.io/lessons/javascript-redux-passing-the-store-down-explicitly-via-props
 
 const todo = (state, action) => { // here the 'state' refers to an indidivual todo, not the list
   switch (action.type) {
@@ -60,9 +60,6 @@ const todoApp = combineReducers({ // this is the root reducer
   // Since 'todos: todos' (field name : reducer name) You can use the ES6  object literal short-hand notation and just omit the keys
 });
 
-const { createStore } = Redux;
-const store = createStore(todoApp);
-
 const { Component } = React;
 
 // presentational component
@@ -90,6 +87,7 @@ const Link = ({
 // container component
 class FilterLink extends Component {
   componentDidMount() {
+    const { store } = this.props;
     this.unsubscribe = store.subscribe(() =>
       this.forceUpdate()
     );
@@ -102,6 +100,7 @@ class FilterLink extends Component {
 
   render() {
     const props = this.props;
+    const { store } = this.props;
     const state = store.getState();
     {/* not React's state, but the Redux store's state */}
 
@@ -125,12 +124,13 @@ class FilterLink extends Component {
   }
 }
 
-const Footer = () => (
+const Footer = ({ store }) => (
   <p>
     Show:
     {' '}
     <FilterLink
       filter='SHOW_ALL'
+      store = { store }
     >
       All
     </FilterLink>
@@ -138,6 +138,7 @@ const Footer = () => (
     {', '}
     <FilterLink
       filter='SHOW_ACTIVE'
+      store = { store }
     >
       Active
     </FilterLink>
@@ -145,6 +146,7 @@ const Footer = () => (
     {', '}
     <FilterLink
       filter='SHOW_COMPLETED'
+      store = { store }
     >
       Completed
     </FilterLink>
@@ -203,7 +205,7 @@ const getVisibleTodos = (
 }
 
 let nextTodoId = 0;
-const AddTodo = () => {
+const AddTodo = ({ store }) => {
   let input;
 
   return (
@@ -226,8 +228,8 @@ const AddTodo = () => {
 }
 
 class VisibleTodoList extends Component {
-
   componentDidMount() {
+    const { store } = this.props;
     this.unsubscribe = store.subscribe(() =>
       this.forceUpdate()
     );
@@ -239,6 +241,7 @@ class VisibleTodoList extends Component {
 
   render() {
     const props = this.props;
+    const { store } = props;
     const state = store.getState();
 
     return (
@@ -259,17 +262,18 @@ class VisibleTodoList extends Component {
   }
 }
 
-const TodoApp = () =>
+const TodoApp = ({ store }) =>
 (
   <div>
-    <AddTodo />
-    <VisibleTodoList />
-    <Footer />
+    <AddTodo store={store} />
+    <VisibleTodoList store={store} />
+    <Footer store={store} />
   </div>
 )
 
+const { createStore } = Redux;
 
 ReactDOM.render(
-  <TodoApp />,
+  <TodoApp store={createStore(todoApp)} />,
   document.getElementById('root')
 );

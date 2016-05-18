@@ -23464,8 +23464,8 @@ var _reactDom = require('react-dom');
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
-// This code is the same as the completed video (23):
-// https://egghead.io/lessons/javascript-redux-extracting-container-components-visibletodolist-addtodo
+// This code is the same as the completed video (24):
+// https://egghead.io/lessons/javascript-redux-passing-the-store-down-explicitly-via-props
 
 var todo = function todo(state, action) {
   // here the 'state' refers to an indidivual todo, not the list
@@ -23523,11 +23523,6 @@ var todoApp = combineReducers({ // this is the root reducer
   // Since 'todos: todos' (field name : reducer name) You can use the ES6  object literal short-hand notation and just omit the keys
 });
 
-var _Redux2 = Redux;
-var createStore = _Redux2.createStore;
-
-var store = createStore(todoApp);
-
 var Component = _react2['default'].Component;
 
 // presentational component
@@ -23572,6 +23567,8 @@ var FilterLink = (function (_Component) {
     value: function componentDidMount() {
       var _this = this;
 
+      var store = this.props.store;
+
       this.unsubscribe = store.subscribe(function () {
         return _this.forceUpdate();
       });
@@ -23586,10 +23583,14 @@ var FilterLink = (function (_Component) {
     key: 'render',
     value: function render() {
       var props = this.props;
+      var store = this.props.store;
+
       var state = store.getState();
       {/* not React's state, but the Redux store's state */}
 
       {/* Below: necessary to use the current state of the store in the render method, hence why we subscribe to the store, above. Now when the link is clicked (below) it changes the store, and everything subscribed to the store updates. */}
+
+      {/* NB the props.filter is what's passed down from Footer */}
       return _react2['default'].createElement(
         Link,
         { active: props.filter === state.visibilityFilter,
@@ -23608,7 +23609,8 @@ var FilterLink = (function (_Component) {
   return FilterLink;
 })(Component);
 
-var Footer = function Footer() {
+var Footer = function Footer(_ref2) {
+  var store = _ref2.store;
   return _react2['default'].createElement(
     'p',
     null,
@@ -23617,7 +23619,8 @@ var Footer = function Footer() {
     _react2['default'].createElement(
       FilterLink,
       {
-        filter: 'SHOW_ALL'
+        filter: 'SHOW_ALL',
+        store: store
       },
       'All'
     ),
@@ -23625,7 +23628,8 @@ var Footer = function Footer() {
     _react2['default'].createElement(
       FilterLink,
       {
-        filter: 'SHOW_ACTIVE'
+        filter: 'SHOW_ACTIVE',
+        store: store
       },
       'Active'
     ),
@@ -23633,7 +23637,8 @@ var Footer = function Footer() {
     _react2['default'].createElement(
       FilterLink,
       {
-        filter: 'SHOW_COMPLETED'
+        filter: 'SHOW_COMPLETED',
+        store: store
       },
       'Completed'
     )
@@ -23641,10 +23646,10 @@ var Footer = function Footer() {
 };
 
 // presentational component. Does not specify behaviour - only renders a todo
-var Todo = function Todo(_ref2) {
-  var onClick = _ref2.onClick;
-  var completed = _ref2.completed;
-  var text = _ref2.text;
+var Todo = function Todo(_ref3) {
+  var onClick = _ref3.onClick;
+  var completed = _ref3.completed;
+  var text = _ref3.text;
   return _react2['default'].createElement(
     'li',
     {
@@ -23658,10 +23663,10 @@ var Todo = function Todo(_ref2) {
   );
 };
 
-var TodoList = function TodoList(_ref3) {
+var TodoList = function TodoList(_ref4) {
   var // presentational component
-  todos = _ref3.todos;
-  var onTodoClick = _ref3.onTodoClick;
+  todos = _ref4.todos;
+  var onTodoClick = _ref4.onTodoClick;
   return _react2['default'].createElement(
     'ul',
     null,
@@ -23692,7 +23697,9 @@ var getVisibleTodos = function getVisibleTodos(todos, filter) {
 };
 
 var nextTodoId = 0;
-var AddTodo = function AddTodo() {
+var AddTodo = function AddTodo(_ref5) {
+  var store = _ref5.store;
+
   var input = undefined;
 
   return _react2['default'].createElement(
@@ -23730,6 +23737,8 @@ var VisibleTodoList = (function (_Component2) {
     value: function componentDidMount() {
       var _this2 = this;
 
+      var store = this.props.store;
+
       this.unsubscribe = store.subscribe(function () {
         return _this2.forceUpdate();
       });
@@ -23743,6 +23752,8 @@ var VisibleTodoList = (function (_Component2) {
     key: 'render',
     value: function render() {
       var props = this.props;
+      var store = props.store;
+
       var state = store.getState();
 
       return _react2['default'].createElement(TodoList, {
@@ -23759,17 +23770,21 @@ var VisibleTodoList = (function (_Component2) {
   return VisibleTodoList;
 })(Component);
 
-var TodoApp = function TodoApp() {
+var TodoApp = function TodoApp(_ref6) {
+  var store = _ref6.store;
   return _react2['default'].createElement(
     'div',
     null,
-    _react2['default'].createElement(AddTodo, null),
-    _react2['default'].createElement(VisibleTodoList, null),
-    _react2['default'].createElement(Footer, null)
+    _react2['default'].createElement(AddTodo, { store: store }),
+    _react2['default'].createElement(VisibleTodoList, { store: store }),
+    _react2['default'].createElement(Footer, { store: store })
   );
 };
 
-_reactDom2['default'].render(_react2['default'].createElement(TodoApp, null), document.getElementById('root'));
+var _Redux2 = Redux;
+var createStore = _Redux2.createStore;
+
+_reactDom2['default'].render(_react2['default'].createElement(TodoApp, { store: createStore(todoApp) }), document.getElementById('root'));
 /* see props above */
 
 },{"deep-freeze":3,"expect":10,"react":198,"react-dom":60}]},{},[200]);
