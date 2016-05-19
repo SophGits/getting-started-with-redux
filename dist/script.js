@@ -24928,8 +24928,8 @@ var _reactDom2 = _interopRequireDefault(_reactDom);
 
 var _reactRedux = require('react-redux');
 
-// This code is the same as the completed video (#29):
-// https://egghead.io/lessons/javascript-redux-generating-containers-with-connect-from-react-redux-footerlink
+// This code is the same as the completed video (#30):
+// https://egghead.io/lessons/javascript-redux-extracting-action-creators
 
 var todo = function todo(state, action) {
   // here the 'state' refers to an indidivual todo, not the list
@@ -24987,6 +24987,30 @@ var todoApp = combineReducers({ // this is the root reducer
   // Since 'todos: todos' (field name : reducer name) You can use the ES6  object literal short-hand notation and just omit the keys
 });
 
+{/* 'action creator' function (keep separate from components & reducers ) */}
+var nextTodoId = 0;
+var addTodo = function addTodo(text) {
+  return {
+    type: 'ADD_TODO',
+    id: nextTodoId++,
+    text: text
+  };
+};
+
+var setVisibilityFilter = function setVisibilityFilter(filter) {
+  return {
+    type: 'SET_VISIBILITY_FILTER',
+    filter: filter
+  };
+};
+
+var toggleTodo = function toggleTodo(id) {
+  return {
+    type: 'TOGGLE_TODO',
+    id: id
+  };
+};
+
 var Component = _react2['default'].Component;
 
 // presentational component
@@ -25024,10 +25048,7 @@ var mapStateToLinkProps = function mapStateToLinkProps(state, ownProps) {
 var mapDispatchToLinkProps = function mapDispatchToLinkProps(dispatch, ownProps) {
   return {
     onClick: function onClick() {
-      dispatch({
-        type: 'SET_VISIBILITY_FILTER',
-        filter: ownProps.filter
-      });
+      dispatch(setVisibilityFilter(ownProps.filter));
     }
   };
 };
@@ -25117,7 +25138,6 @@ var getVisibleTodos = function getVisibleTodos(todos, filter) {
   }
 };
 
-var nextTodoId = 0;
 var AddTodo = function AddTodo(_ref4) {
   var dispatch = _ref4.dispatch;
 
@@ -25132,11 +25152,7 @@ var AddTodo = function AddTodo(_ref4) {
     _react2['default'].createElement(
       'button',
       { onClick: function () {
-          dispatch({
-            type: 'ADD_TODO',
-            id: nextTodoId++,
-            text: input.value
-          });
+          dispatch(addTodo(input.value));
           input.value = '';
         } },
       'Add Todo'
@@ -25155,10 +25171,7 @@ var mapStateToTodoListProps = function mapStateToTodoListProps(state) {
 var mapDispatchToTodoListProps = function mapDispatchToTodoListProps(dispatch) {
   return {
     onTodoClick: function onTodoClick(id) {
-      dispatch({
-        type: 'TOGGLE_TODO',
-        id: id
-      });
+      dispatch(toggleTodo(id));
     }
   };
 };

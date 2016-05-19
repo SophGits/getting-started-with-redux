@@ -4,8 +4,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { connect } from 'react-redux';
-// This code is the same as the completed video (#29):
-// https://egghead.io/lessons/javascript-redux-generating-containers-with-connect-from-react-redux-footerlink
+// This code is the same as the completed video (#30):
+// https://egghead.io/lessons/javascript-redux-extracting-action-creators
 
 const todo = (state, action) => { // here the 'state' refers to an indidivual todo, not the list
   switch (action.type) {
@@ -61,6 +61,30 @@ const todoApp = combineReducers({ // this is the root reducer
   // Since 'todos: todos' (field name : reducer name) You can use the ES6  object literal short-hand notation and just omit the keys
 });
 
+{/* 'action creator' function (keep separate from components & reducers ) */}
+let nextTodoId = 0;
+const addTodo = (text) => {
+  return {
+    type: 'ADD_TODO',
+    id: nextTodoId++,
+    text
+  };
+};
+
+const setVisibilityFilter = (filter) => {
+  return {
+    type: 'SET_VISIBILITY_FILTER',
+    filter
+  };
+};
+
+const toggleTodo = (id) => {
+  return {
+    type: 'TOGGLE_TODO',
+    id
+  };
+};
+
 const { Component } = React;
 
 // presentational component
@@ -102,10 +126,9 @@ const mapDispatchToLinkProps = (
 ) => {
   return {
     onClick: () => {
-      dispatch({
-        type: 'SET_VISIBILITY_FILTER',
-        filter: ownProps.filter
-      });
+      dispatch(
+        setVisibilityFilter(ownProps.filter)
+      );
     }
   };
 }
@@ -192,7 +215,6 @@ const getVisibleTodos = (
   }
 }
 
-let nextTodoId = 0;
 let AddTodo = ({ dispatch }) => {
   let input;
 
@@ -202,11 +224,7 @@ let AddTodo = ({ dispatch }) => {
         input = node;
       }} />
       <button onClick={() => {
-        dispatch({
-          type: 'ADD_TODO',
-          id: nextTodoId++,
-          text: input.value
-        })
+        dispatch(addTodo(input.value));
           input.value = '';
         }}>
         Add Todo
@@ -232,10 +250,9 @@ const mapStateToTodoListProps = (state) => {
 const mapDispatchToTodoListProps = (dispatch) => {
   return {
     onTodoClick: (id) => {
-      dispatch({
-        type: 'TOGGLE_TODO',
-        id
-      })
+      dispatch(
+        toggleTodo(id)
+      );
     }
   };
 };
