@@ -5,4 +5,5 @@ Following Dan Abramov's [Getting Started with Redux](https://egghead.io/lessons/
 `npm run build`
 
 ## NB
-For this configuration, Babelify cannot be later than v6.2.0
+- For this configuration, Babelify cannot be later than v6.2.0
+- Each commit is the shape of the code at the end of each video in the playlist
