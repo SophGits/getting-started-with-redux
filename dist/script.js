@@ -24904,19 +24904,11 @@ function match_ (obj, pattern, ca, cb) {
 },{"_process":61,"buffer":2}],226:[function(require,module,exports){
 'use strict';
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _deepFreeze = require('deep-freeze');
 
@@ -24936,8 +24928,8 @@ var _reactDom2 = _interopRequireDefault(_reactDom);
 
 var _reactRedux = require('react-redux');
 
-// This code is the same as the completed video:
-// x
+// This code is the same as the completed video (#29):
+// https://egghead.io/lessons/javascript-redux-generating-containers-with-connect-from-react-redux-footerlink
 
 var todo = function todo(state, action) {
   // here the 'state' refers to an indidivual todo, not the list
@@ -25023,67 +25015,24 @@ var Link = function Link(_ref) {
   );
 };
 
-// container component
-
-var FilterLink = (function (_Component) {
-  _inherits(FilterLink, _Component);
-
-  function FilterLink() {
-    _classCallCheck(this, FilterLink);
-
-    _get(Object.getPrototypeOf(FilterLink.prototype), 'constructor', this).apply(this, arguments);
-  }
-
-  _createClass(FilterLink, [{
-    key: 'componentDidMount',
-    value: function componentDidMount() {
-      var _this = this;
-
-      var store = this.context.store;
-
-      this.unsubscribe = store.subscribe(function () {
-        return _this.forceUpdate();
-      });
-      {/* any time the store's state ∆s we update the component */}
-    }
-  }, {
-    key: 'componentWillUnmount',
-    value: function componentWillUnmount() {
-      this.unsubscribe();
-    }
-  }, {
-    key: 'render',
-    value: function render() {
-      var props = this.props;
-      var store = this.context.store;
-
-      var state = store.getState();
-      {/* not React's state, but the Redux store's state */}
-
-      {/* Below: necessary to use the current state of the store in the render method, hence why we subscribe to the store, above. Now when the link is clicked (below) it changes the store, and everything subscribed to the store updates. */}
-
-      {/* NB the props.filter is what's passed down from Footer */}
-      return _react2['default'].createElement(
-        Link,
-        { active: props.filter === state.visibilityFilter,
-          onClick: function () {
-            return store.dispatch({
-              type: 'SET_VISIBILITY_FILTER',
-              filter: props.filter
-            });
-          }
-        },
-        props.children
-      );
-    }
-  }]);
-
-  return FilterLink;
-})(Component);
-
-FilterLink.contextTypes = {
-  store: _react2['default'].PropTypes.object
+var mapStateToLinkProps = function mapStateToLinkProps(state, ownProps) {
+  return {
+    active: ownProps.filter === state.visibilityFilter
+  };
 };
+
+var mapDispatchToLinkProps = function mapDispatchToLinkProps(dispatch, ownProps) {
+  return {
+    onClick: function onClick() {
+      dispatch({
+        type: 'SET_VISIBILITY_FILTER',
+        filter: ownProps.filter
+      });
+    }
+  };
+};
+
+var FilterLink = (0, _reactRedux.connect)(mapStateToLinkProps, mapDispatchToLinkProps)(Link);
 
 var Footer = function Footer() {
   return _react2['default'].createElement(

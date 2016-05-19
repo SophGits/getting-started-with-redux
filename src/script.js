@@ -4,8 +4,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { connect } from 'react-redux';
-// This code is the same as the completed video (28):
-// https://egghead.io/lessons/javascript-redux-generating-containers-with-connect-from-react-redux-addtodo
+// This code is the same as the completed video (#29):
+// https://egghead.io/lessons/javascript-redux-generating-containers-with-connect-from-react-redux-footerlink
 
 const todo = (state, action) => { // here the 'state' refers to an indidivual todo, not the list
   switch (action.type) {
@@ -85,48 +85,35 @@ const Link = ({
   )
 }
 
-// container component
-class FilterLink extends Component {
-  componentDidMount() {
-    const { store } = this.context;
-    this.unsubscribe = store.subscribe(() =>
-      this.forceUpdate()
-    );
-    {/* any time the store's state ∆s we update the component */}
-  }
+const mapStateToLinkProps = (
+  state,
+  ownProps
+) => {
+  return {
+    active:
+      ownProps.filter ===
+      state.visibilityFilter
+  };
+};
 
-  componentWillUnmount() {
-    this.unsubscribe();
-  }
-
-  render() {
-    const props = this.props;
-    const { store } = this.context;
-    const state = store.getState();
-    {/* not React's state, but the Redux store's state */}
-
-    {/* Below: necessary to use the current state of the store in the render method, hence why we subscribe to the store, above. Now when the link is clicked (below) it changes the store, and everything subscribed to the store updates. */}
-
-    {/* NB the props.filter is what's passed down from Footer */}
-    return (
-      <Link active = {
-        props.filter === state.visibilityFilter
-      }
-      onClick= {() =>
-        store.dispatch({
-          type: 'SET_VISIBILITY_FILTER',
-          filter: props.filter
-        })
-      }
-      >
-        {props.children}
-      </Link>
-    )
-  }
+const mapDispatchToLinkProps = (
+  dispatch,
+  ownProps
+) => {
+  return {
+    onClick: () => {
+      dispatch({
+        type: 'SET_VISIBILITY_FILTER',
+        filter: ownProps.filter
+      });
+    }
+  };
 }
-FilterLink.contextTypes = {
-  store: React.PropTypes.object
-}
+
+const FilterLink = connect(
+  mapStateToLinkProps,
+  mapDispatchToLinkProps
+)(Link);
 
 const Footer = () => (
   <p>
