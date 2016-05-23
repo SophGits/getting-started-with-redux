@@ -3,6 +3,7 @@ Following Dan Abramov's [Getting Started with Redux](https://egghead.io/lessons/
 
 ## To start
 `npm run build`
+`python -m SimpleHTTPServer 4444`
 
 ## NB
 - For this configuration, Babelify cannot be later than v6.2.0
